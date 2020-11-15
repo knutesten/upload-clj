@@ -14,6 +14,13 @@
    [ring.util.response :refer [redirect response file-response]]
    [mount.core :refer [defstate start]]))
 
+(defn file-elem [f]
+  [:form {:action (str "/delete/" (.getName f)) :method "post"}
+   (anti-forgery-field)
+   [:a {:href (str f)} (.getName f)]
+   "&nbsp;"
+   [:button {:type "submit"} "X"]])
+
 (defn file-list []
   [:div
    [:b "Files"]
@@ -21,8 +28,7 @@
    (->> (io/file "./uploads")
         (file-seq)
         (filter #(.isFile %))
-        (map #(vector :a {:href (str %)} (.getName %)))
-        (interpose [:br]))])
+        (map file-elem))])
 
 (defn upload-file []
   [:form {:action "/upload" :method "post" :enctype "multipart/form-data"}
@@ -60,10 +66,16 @@
     (.renameTo tmp-file (io/file (str "./uploads/" filename)))
     (redirect "/")))
 
+(defn delete-handler [req]
+  (let [file (-> req :params :file)]
+    (.delete (io/file (str "./uploads/" file)))
+    (redirect "/")))
+
 (defroutes app
   (GET "/" [] list-files-handler)
   (GET "/uploads/:file" [] download-handler)
   (POST "/upload" [] upload-handler)
+  (POST "/delete/:file" [] delete-handler)
   (route/not-found "404 Not found"))
 
 (defstate server
