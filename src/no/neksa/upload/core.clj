@@ -1,6 +1,6 @@
 (ns no.neksa.upload.core
   (:require
-   [no.neksa.upload.keycloak :refer [wrap-keycloak]]
+   [no.neksa.upload.keycloak :refer [wrap-keycloak-authentication wrap-keycloak-authorization]]
    [hiccup.page :refer [html5]]
    [compojure.core :refer :all]
    [compojure.route :as route]
@@ -69,7 +69,8 @@
 (defstate server
   :start (run-jetty (-> app
                         wrap-anti-forgery
-                        wrap-keycloak
+                        wrap-keycloak-authorization
+                        wrap-keycloak-authentication
                         wrap-multipart-params
                         wrap-params
                         wrap-session)
