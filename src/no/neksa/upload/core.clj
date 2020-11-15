@@ -1,7 +1,7 @@
 (ns no.neksa.upload.core
   (:require
    [no.neksa.upload.keycloak :refer [wrap-keycloak-authentication wrap-keycloak-authorization]]
-   [hiccup.page :refer [html5]]
+   [hiccup.page :refer [html5 include-css]]
    [compojure.core :refer :all]
    [compojure.route :as route]
    [clojure.java.io :as io]
@@ -15,16 +15,17 @@
    [mount.core :refer [defstate start]]))
 
 (defn file-elem [f]
-  [:form {:action (str "/delete/" (.getName f)) :method "post"}
+  [:form {:action (str "/delete/" (.getName f))
+          :method "post"
+          :style  "margin-bottom: 0;"}
    (anti-forgery-field)
    [:a {:href (str f)} (.getName f)]
    "&nbsp;"
-   [:button {:type "submit"} "X"]])
+   [:button {:type "submit" :style "padding: 0 5px;"} "X"]])
 
 (defn file-list []
   [:div
-   [:b "Files"]
-   [:br]
+   [:h3 "Files"]
    (->> (io/file "./uploads")
         (file-seq)
         (filter #(.isFile %))
@@ -33,7 +34,7 @@
 (defn upload-file []
   [:form {:action "/upload" :method "post" :enctype "multipart/form-data"}
    (anti-forgery-field)
-   [:label {:for "upload"} [:b "Upload file"]]
+   [:label {:for "upload"} [:b "Upload a new file"]]
    [:br]
    [:input {:type "file" :id "upload" :name "file"}]
    [:br]
@@ -43,17 +44,23 @@
   [:div
    [:b "Logged in as: "]
    (-> req :session :identity :email)
-   [:br]
+   "&nbsp;&nbsp;"
    [:a {:href "/logout"} "Log out"]])
 
 (defn list-files-handler [req]
   (response
     (html5
-      (user-info req)
-      [:br]
-      (file-list)
-      [:br]
-      (upload-file))))
+      [:head
+       [:title "File Upload"]
+       (include-css "https://fonts.xz.style/serve/inter.css")
+       (include-css "https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css")]
+      [:body
+       [:header
+        [:h1 "File Upload"]
+        (user-info req)]
+       (file-list)
+       [:br]
+       (upload-file)])))
 
 (defn download-handler [req]
   (file-response (-> req :params :file)
