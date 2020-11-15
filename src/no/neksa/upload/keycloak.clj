@@ -9,7 +9,10 @@
                    (-> "secret.edn" slurp edn/read-string)))
 
 (defn server-url [req]
-  (str (name (:scheme req)) "://" (:server-name req) ":" (:server-port req)))
+  (str (or (-> req :headers (get "x-forwarded-proto"))
+           (name (:scheme req)))
+       "://"
+       (-> req :headers (get "host"))))
 
 (defn callback-url [req]
   (str (server-url req) "/auth"))
