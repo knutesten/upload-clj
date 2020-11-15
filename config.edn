@@ -1,5 +1,2 @@
-{:client-id     "upload"
- :token-uri     "https://keycloak.neksa.no/auth/realms/private/protocol/openid-connect/token"
- :authorize-uri "https://keycloak.neksa.no/auth/realms/private/protocol/openid-connect/auth"
- :user-info-uri "https://keycloak.neksa.no/auth/realms/private/protocol/openid-connect/userinfo"
- :logout-uri    "https://keycloak.neksa.no/auth/realms/private/protocol/openid-connect/logout"}
+{:client-id                   "upload"
+ :oidc-configuration-endpoint "https://keycloak.neksa.no/auth/realms/private/.well-known/openid-configuration"}

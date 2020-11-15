@@ -5,8 +5,11 @@
    [ring.util.response :refer [redirect response]]
    [cheshire.core :as json]))
 
-(def config (merge (-> "config.edn" slurp edn/read-string)
-                   (-> "secret.edn" slurp edn/read-string)))
+(def config (let [config (-> "config.edn" slurp edn/read-string)]
+              (merge
+                config
+                (-> "secret.edn" slurp edn/read-string)
+                (:body (client/get (:oidc-configuration-endpoint config) {:as :json})))))
 
 (defn server-url [req]
   (str (or (-> req :headers (get "x-forwarded-proto"))
@@ -20,7 +23,7 @@
 (defn oauth-authorization-uri
   "Creates an authorization uri"
   [req state]
-  (str (:authorize-uri config)
+  (str (:authorization_endpoint config)
        "?state=" state
        "&redirect_uri=" (callback-url req)
        "&client_id=" (:client-id config)
@@ -28,7 +31,7 @@
        "&scope=openid profile email"))
 
 (defn fetch-access-token [req code]
-  (-> (client/post (:token-uri config)
+  (-> (client/post (:token_endpoint config)
                    {:accept        :json
                     :as            :json
                     :cookie-policy :standard
@@ -79,7 +82,7 @@
         (assoc-in [:session :state] state))))
 
 (defn logout-handler [req]
-  (-> (redirect (str (:logout-uri config)
+  (-> (redirect (str (:end_session_endpoint config)
                      "?redirect_uri="
                      (server-url req)))
       (assoc :session nil)))
