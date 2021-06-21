@@ -1,4 +1,4 @@
-(ns no.neksa.upload.keycloak
+(ns no.neksa.upload.oidc
   (:require
    [clojure.edn :as edn]
    [clojure.string :as str]
@@ -121,7 +121,7 @@
        :roles
        (some #(= % "upload"))))
 
-(defn wrap-keycloak-authentication [handler]
+(defn wrap-oidc-authentication [handler]
   (fn [req]
     (case (:uri req)
       "/auth"   (authentication-handler req)
@@ -130,7 +130,7 @@
         (handler req)
         (login-handler req)))))
 
-(defn wrap-keycloak-authorization [handler]
+(defn wrap-oidc-authorization [handler]
   (fn [req]
     (if (authorized? req)
       (handler req)
