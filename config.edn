@@ -1,2 +1,2 @@
 {:client-id                   "upload"
- :oidc-configuration-endpoint "https://keycloak.neksa.no/auth/realms/private/.well-known/openid-configuration"}
+ :oidc-configuration-endpoint "http://localhost:8080/auth/realms/master/.well-known/openid-configuration"}
