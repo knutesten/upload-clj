@@ -1,0 +1,13 @@
+[Unit]
+Description=Simple webapp for uploading and downloading files
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/upload
+Environment=PORT=3031
+ExecStart=/usr/bin/java -cp upload-clj.jar clojure.main -m no.neksa.upload.core
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+

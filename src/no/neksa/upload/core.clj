@@ -93,7 +93,10 @@
                         wrap-multipart-params
                         wrap-params
                         wrap-session)
-                    {:port 3030 :join? false})
+                    {:port (if-let [port-str (System/getenv "PORT")]
+                             (Integer/parseInt port-str)
+                             3030)
+                     :join? false})
   :stop (.stop server))
 
 (defn -main []
